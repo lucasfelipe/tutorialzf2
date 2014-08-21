@@ -26,4 +26,20 @@ class Module
             ),
         );
     }
+    /**
+     * Register View Helper
+     */
+    public function getViewHelperConfig(){
+        return array(
+            # registrar View Helper com injencao de dependencia
+            'factories' => array(
+                'menuAtivo' => function($sm) {
+                    return new View\Helper\MenuAtivo($sm->getServiceLocator()->get('Request'));
+                },
+                'message' => function($sm){
+                    return new View\Helper\Message($sm->getServiceLocator()->get('ControllerPluginManager')->get('flashmessenger'));
+                },
+            )
+        );
+    }
 }

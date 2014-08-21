@@ -17,7 +17,14 @@ class HomeController extends AbstractActionController
     {
         return new ViewModel();
     }
-
-
+    
+    /** 
+    * Esta parte será responsável por renderizar a visão com o html referente.      
+    * action index
+    * @return \Zend\View\Model\ViewModel 
+    */
+    public function sobreAction(){
+        return new ViewModel();
+    }
 }
 
