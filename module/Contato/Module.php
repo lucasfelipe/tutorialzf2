@@ -4,6 +4,14 @@
  */
 namespace Contato;
 
+// import Model\Contato
+use Contato\Model\Contato,
+    Contato\Model\ContatoTable;
+
+// import Zend\Db
+use Zend\Db\ResultSet\ResultSet,
+    Zend\Db\TableGateway\TableGateway;
+
 class Module
 {
     /**
@@ -39,6 +47,26 @@ class Module
                 'message' => function($sm){
                     return new View\Helper\Message($sm->getServiceLocator()->get('ControllerPluginManager')->get('flashmessenger'));
                 },
+            )
+        );
+    }
+    /**
+     * Register Services
+     */
+    public function getServiceConfig(){
+        return array(
+            'factories' => array(
+                'ContatoTableGateway' => function($sm){
+                    // obter adapter db atraves do service manager
+                    $adapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    
+                    // configurar ResultSet com nosso  return new TableGateway('contatos', $adapter, null, $resultSetPrototype);model Contato
+                    $resultSetPrototype = new ResultSet();
+                    $resultSetPrototype->setArrayObjectPrototype(new Contato());
+                    
+                    // return TableGateway configurado para nosso model Contato
+                    return new TableGateway('agenda_contatos', $adapter, null, $resultSetPrototype);
+                }
             )
         );
     }

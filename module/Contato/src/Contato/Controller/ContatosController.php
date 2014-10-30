@@ -1,12 +1,20 @@
 <?php
 namespace Contato\Controller;
 
+// import Zend\Mvc
 use Zend\Mvc\Controller\AbstractActionController;
+
+// import Zend\View
+use Zend\View\Model\ViewModel;
+
+// import Model\ContatoTable com alias
+use Contato\Model\ContatoTable as ModelContato;
 
 class ContatosController extends AbstractActionController {
     // GET /contatos
     public function indexAction() {
-        
+       // enviar para view o array com key contatos e value com todos os contatos
+       return new ViewModel(array('contatos' => $this->getContatoTable()->fetchAll()));
     }
     
     // GET /contatos/novo
@@ -63,13 +71,23 @@ class ContatosController extends AbstractActionController {
         // 1 - solicitar serviço para pegar o model responsavel pelo find
         // 2 - solicitar form com dados desse contato encontrado
         // formulario com dados preenchidos
-        $form = array(
-            'nome' => 'Lucas Felipe',
-            'telefone_principal' => "(061) 9292-9292",
-            'telefone_secundario' => "(061) 9292-9292",
-            'data_criacao' => "19/08/2014",
-            'data_atualizacao' => "19/08/2014"
-        );
+        //$form = array(
+        //    'nome' => 'Lucas Felipe',
+        //    'telefone_principal' => "(061) 9292-9292",
+        //    'telefone_secundario' => "(061) 9292-9292",
+        //    'data_criacao' => "19/08/2014",
+        //   'data_atualizacao' => "19/08/2014"
+        //);
+        
+        try {
+            $form = (array) $this->getContatoTable()->find($id);
+        } catch (Exception $exc) {
+            // adicionar mensagem
+            $this->flashMessenger()->addErrorMessage($exc->getMessage());
+            
+            // redirecionar para action index
+            return $this->redirect()->toRoute('contatos');
+        }
         
         // dados enviados para detalhes.phtml
         return array('id' => $id, 'form' => $form);
@@ -94,12 +112,27 @@ class ContatosController extends AbstractActionController {
         // 2 - solicitar form com dados desse contato encontrado.
         
         // formulário com dados preenchidos
-        $form = array(
-            'nome'  => 'Lucas Felipe',
-            "telefone_principal"    => "(061) 9292-9292",
-            "telefone_secundario"   => "(061) 9292-2929"
-        );
+        //$form = array(
+        //    'nome'  => 'Lucas Felipe',
+        //    "telefone_principal"    => "(061) 9292-9292",
+        //    "telefone_secundario"   => "(061) 9292-2929"
+        //);
         
+        // localizar adapter do banco
+        //$adapter = $this->getServiceLocator()->get('AdapterDb');
+        
+        // model ContatoTable instanciado
+        //$modelContato = new ModelContato($adapter); // alias para ContatoTable
+        try {
+            $form = (array) $this->getContatoTable()->find($id);
+        } catch (Exception $exc) {
+            // adicionar mensagem
+            $this->flashMessenger()->addErrorMessage($exc->getMessage());
+            
+            // redirecionar para action index
+            return $this->redirect()->toRoute('contatos');
+        }
+        // dados enviados para editar.phtml
         return array('id' => $id, 'form' => $form);
     }
     
@@ -154,6 +187,19 @@ class ContatosController extends AbstractActionController {
         
         // redirecionar para action index
         return $this->redirect()->toRoute('contatos');
+    }
+    
+    /**
+     * Metodo privado para obter instancia do Model ContatoTable
+     * 
+     * @return \Contato\Model\ContatoTable
+     */
+    private function getContatoTable(){
+        // obter instancia tableGateway configurada
+        $tableGateway = $this->getServiceLocator()->get('ContatoTableGateway');
+        
+        // return model ContatoTable
+        return new ModelContato($tableGateway);
     }
 }
 
